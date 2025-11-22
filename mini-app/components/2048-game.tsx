@@ -159,11 +159,11 @@ export function Game2048() {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-2 sm:gap-1">
         {board.flat().map((value, idx) => (
           <div
             key={idx}
-            className={`w-16 h-16 flex items-center justify-center rounded-md text-xl font-bold ${
+            className={`w-16 h-16 sm:w-12 sm:h-12 flex items-center justify-center rounded-md text-xl font-bold ${
               value === 0
                 ? "bg-gray-200"
                 : value <= 4
@@ -183,13 +183,15 @@ export function Game2048() {
           </div>
         ))}
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
         <Button onClick={() => handleMove("up")}>↑</Button>
         <div className="flex gap-2">
           <Button onClick={() => handleMove("left")}>←</Button>
           <Button onClick={() => handleMove("right")}>→</Button>
         </div>
         <Button onClick={() => handleMove("down")}>↓</Button>
+        <Button onClick={undo} variant="outline">Undo</Button>
+        <Button onClick={restart} variant="outline">Restart</Button>
       </div>
       <div className="text-lg">Score: {score}</div>
       {gameOver && (
@@ -198,6 +200,17 @@ export function Game2048() {
           <Share text={`I scored ${score} points in 2048! ${url}`} />
         </div>
       )}
+      <div className="w-full max-w-md mt-4">
+        <h2 className="text-lg font-semibold mb-2">Leaderboard</h2>
+        <ul className="space-y-1">
+          {leaderboard.map((s, i) => (
+            <li key={i} className="flex justify-between">
+              <span>{i + 1}.</span>
+              <span>{s} pts</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
