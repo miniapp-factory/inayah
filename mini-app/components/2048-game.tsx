@@ -110,20 +110,51 @@ export function Game2048() {
   const [board, setBoard] = useState<number[][]>(initBoard);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [history, setHistory] = useState<number[][][]>([]);
+  const [leaderboard, setLeaderboard] = useState<number[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("2048-leaderboard");
+    if (stored) {
+      setLeaderboard(JSON.parse(stored));
+    }
+  }, []);
 
   useEffect(() => {
     const newScore = board.flat().reduce((a, b) => a + b, 0);
     setScore(newScore);
-    if (!canMove(board)) setGameOver(true);
-  }, [board]);
+    if (!canMove(board)) {
+      setGameOver(true);
+      // update leaderboard
+      const updated = [...leaderboard, newScore].sort((a, b) => b - a).slice(0, 5);
+      setLeaderboard(updated);
+      localStorage.setItem("2048-leaderboard", JSON.stringify(updated));
+    }
+  }, [board, leaderboard]);
 
   const handleMove = (direction: "up" | "down" | "left" | "right") => {
     if (gameOver) return;
+    // push current board to history for undo
+    setHistory(prev => [...prev, board]);
     const newBoard = move(board, direction);
     if (!boardsEqual(board, newBoard)) {
       const boardWithTile = addRandomTile(newBoard);
       setBoard(boardWithTile);
     }
+  };
+
+  const undo = () => {
+    if (history.length === 0) return;
+    const prevBoard = history[history.length - 1];
+    setHistory(prev => prev.slice(0, -1));
+    setBoard(prevBoard);
+    setGameOver(false);
+  };
+
+  const restart = () => {
+    setBoard(initBoard());
+    setHistory([]);
+    setGameOver(false);
   };
 
   return (
